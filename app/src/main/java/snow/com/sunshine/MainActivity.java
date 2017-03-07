@@ -1,6 +1,9 @@
 package snow.com.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_detail, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
 
     }
@@ -52,11 +55,39 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent intent = new Intent(this, SettingActivity.class);
-
-                startActivity(intent);
+                Intent settingIntent = new Intent(this, SettingActivity.class);
+                startActivity(settingIntent);
+                break;
+            case R.id.action_map:
+                Intent mapIntent = new Intent(this, SettingActivity.class);
+                startActivity(mapIntent);
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void openPreferredLocationInMap() {
+        SharedPreferences sharePrefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        String location = sharePrefs.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default)
+        );
+
+        Uri geoLocation = Uri.parse("geo:0,0?")
+                .buildUpon()
+                .appendQueryParameter("q", location)
+                .build();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+
+        } else {
+            Log.d("OPEN_ERROR", "Couldn't call " + location);
+        }
+
+    }
+
+
 }
